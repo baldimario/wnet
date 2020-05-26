@@ -12,11 +12,12 @@ config = {
     'dilation_factor': 2,
     'input_shape': None,
     'channels': 64,
-    'n_layers': 11,
-    'n_dilation_depth': 11,
+    'n_layers': 10,
+    'n_dilation_depth': 12,
     'n_filters': 8,
     'filter_width': 2, #2,
     'residual': True,
+    'use_ulaw': True,
     # training parameters
     'epochs': 50,
     'batch_size': 256
@@ -44,7 +45,17 @@ def main():
     )
 
     #model = build_wavenet_model(config['input_shape'], config['n_filters'], config['filter_width'], config['n_layers'], config['channels'])
-    model = get_model(config['input_shape'], config['channels'], config['n_layers'], config['n_dilation_depth'], config['n_filters'], config['residual'], config['filter_width'], config['dilation_factor'])
+    model = get_model(
+        input_shape=config['input_shape'],
+        channels=config['channels'],
+        n_layers=config['n_layers'],
+        n_dilation_depth=config['n_dilation_depth'],
+        n_filters=config['n_filters'],
+        filter_width=config['filter_width'],
+        residual=config['residual'],
+        dilation_factor=config['dilation_factor']
+    )
+    #model = get_model(config['input_shape'], config['channels'], config['n_layers'], config['n_dilation_depth'], config['n_filters'], config['residual'], config['filter_width'], config['dilation_factor'])
 
     data = get_tedx()
 
@@ -55,7 +66,8 @@ def main():
                                        n_channels=config['channels'],
                                        batch_size=config['batch_size'],
                                        single_output=True,
-                                       raw_input=False
+                                       raw_input=False,
+                                       use_ulaw=config['use_ulaw']
                                        )
     '''
     y = []
