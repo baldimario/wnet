@@ -13,8 +13,9 @@ def get_tedx(n=None):
     ##data = (data[:, 0]+data[:, 1])/2
     #data = signal.resample(data, new_samples)
 
-    data = np.copy(data) - np.min(data)
-    data = data / np.max(data)
+    #data = np.copy(data) - np.min(data)
+    #data = data / np.max(data)
+    data = data / np.max(np.abs(data))
 
     return data
 
@@ -53,3 +54,4 @@ def get_speech_like(window):
     #x_train = np.asarray([data[i:i + window] for i in range(len(data) - window - 1)])
 
     return data #x_train, y_train
+
