@@ -8,7 +8,7 @@ class DataGenerator(Sequence):
     """
     def __init__(self, samples, window=2,
                  to_fit=True, batch_size=32,
-                 n_channels=1, shuffle=False, conv=False, single_output=False, raw_input=False):
+                 n_channels=1, shuffle=False, conv=False, single_output=False, raw_input=False, use_ulaw=True):
         self.samples = samples
         self.to_fit = to_fit
         self.batch_size = batch_size
@@ -18,6 +18,7 @@ class DataGenerator(Sequence):
         self.conv = conv
         self.single_output = single_output
         self.raw_input = raw_input
+        self.use_mulaw = use_ulaw
         self.on_epoch_end()
 
     def __len__(self):
@@ -55,6 +56,10 @@ class DataGenerator(Sequence):
     def on_epoch_end(self):
         """Updates indexes after each epoch
         """
+
+        if self.use_mulaw:
+            self.samples = self.ulaw(self.samples)
+
         #self.indexes = np.arange(len(self.samples))
         self.indexes = np.arange(np.floor(len(self.samples) - self.window - 1).astype('int64'))
 
@@ -125,3 +130,27 @@ class DataGenerator(Sequence):
             #y[i,] = self._load_grayscale_image(self.mask_path + self.labels[ID])
 
         return y
+
+
+    def ulaw(self, x, u=255):
+        x = np.sign(x) * (np.log(1 + u * np.abs(x)) / np.log(1 + u))
+        return x
+
+    def ulaw2lin(self, xx, u=255.):
+        max_value = np.iinfo('uint8').max
+        min_value = np.iinfo('uint8').min
+        x = x.astype('float64', casting='safe')
+        x -= min_value
+        x /= ((max_value - min_value) / 2.)
+        x -= 1.
+        x = np.sign(x) * (1 / u) * (((1 + u) ** np.abs(x)) - 1)
+        x = self.float_to_uint8(x)
+        return x
+
+    def float_to_uint8(self, xx):
+        x += 1.
+        x /= 2.
+        uint8_max_value = np.iinfo('uint8').max
+        x *= uint8_max_value
+        x = x.astype('uint8')
+        return x
